@@ -1,0 +1,12 @@
+files/*
+.DS_Store
+.idea/*
+*/.idea/*
+venv/*
+*.pyc
+*test.py
+*.log
+**/proxy_file
+build/
+dist/
+*.egg-info/
