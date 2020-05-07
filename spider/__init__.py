@@ -16,9 +16,11 @@ __all__ = [
     "Response",
     "Item",
     "UpdateItem",
+    "ArgumentParser"
 ]
 
 from spider.core.spiders import Spider, BatchSpider, SingleSpider
 from spider.network.request import Request
 from spider.network.response import Response
 from spider.network.item import Item, UpdateItem
+from spider.utils.custom_argparse import ArgumentParser

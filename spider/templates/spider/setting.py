@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """爬虫配置文件"""
-import sys
 import os
+
 
 # MYSQL
 MYSQL_IP = ""
@@ -27,8 +27,6 @@ PARSER_COUNT = 1
 PARSER_SLEEP_TIME = 0
 PARSER_TASK_COUNT = 1
 PARSER_MAX_RETRY_TIMES = 100
-# 是否主动执行添加 设置为False 需要手动调用start_monitor_task，适用于多进程情况下
-PARSER_AUTO_START_REQUESTS = True
 
 # 重新尝试失败的requests 当requests重试次数超过允许的最大重试次数算失败
 RETRY_FAILED_REQUESTS = False
@@ -45,10 +43,6 @@ RESPONSE_CACHED_USED = False  # 是否使用缓存 补才数据时可设置为Tr
 WARNING_FAILED_COUNT = 1000  # 任务失败数 超过WARNING_FAILED_COUNT则报警
 
 # 爬虫初始化工作
-# redis 存放item与request的根目录
-TABLE_FOLDER = ""
-# 每次启动时需要删除的表
-DELETE_TABS = []
 # 爬虫做完request后是否自动结束或者等待任务
 AUTO_STOP_WHEN_SPIDER_DONE = True
 # 是否将item添加到 mysql 支持列表 指定添加的item 可模糊指定
@@ -56,17 +50,15 @@ ADD_ITEM_TO_MYSQL = True
 # 是否将item添加到 redis 支持列表 指定添加的item 可模糊指定
 ADD_ITEM_TO_REDIS = False
 
+
 # 设置代理
+PROXY_EXTRACT_API = None  # 代理提取API ，返回的代理分割符为\r\n
 PROXY_ENABLE = True
 
 # 随机headers
 RANDOM_HEADERS = True
 # requests 使用session
 USE_SESSION = False
-
-# 过滤
-ITEM_FILTER_ENABLE = False
-REQUEST_FILTER_ENABLE = False
 
 # 报警
 DINGDING_WARNING_URL = ""
@@ -78,8 +70,3 @@ LOG_PATH = "log/%s.log" % LOG_NAME  # log存储路径
 LOG_LEVEL = "DEBUG"
 LOG_IS_WRITE_TO_FILE = False
 OTHERS_LOG_LEVAL = "ERROR"  # 第三方库的log等级
-
-project_path = os.path.abspath(os.path.dirname(__file__))
-os.chdir(project_path)  # 切换工作路经
-sys.path.insert(0, project_path)
-print("当前工作路径为 " + os.getcwd())

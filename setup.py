@@ -32,7 +32,7 @@ packages.extend(
 
 setuptools.setup(
     name="boris-spider",
-    version="0.0.1",
+    version="0.0.3",
     author="Boris",
     license="MIT",
     author_email="boris@bzkj.tech",
@@ -49,7 +49,11 @@ setuptools.setup(
         "requests>=2.22.0",
         "bs4==0.0.1",
     ],
+    entry_points={
+        "console_scripts": ["spider-create = spider.base.create_builder:main"]
+    },
     url="https://github.com/Boris-code/spider.git",
     packages=packages,
+    include_package_data=True,
     classifiers=["Programming Language :: Python :: 3"],
 )

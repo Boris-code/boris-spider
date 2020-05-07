@@ -6,13 +6,13 @@
 
 ## 安装
 
-From PyPI:
+From PyPi:
 
     pip3 install boris-spider
 
 From Git:
 
-    pip3 install git+https://github.com/Boris-code/spider.git
+    pip3 install git+https://github.com/Boris-code/boris-spider.git
 
 ## 快速上手
 

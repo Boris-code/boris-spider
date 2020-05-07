@@ -7,17 +7,16 @@ Created on {DATE}
 @author: {USER}
 '''
 
-import spider.utils.tools as tools
-from items import *
-from spider.core.spiders import Spider, BatchSpider
-from spider.network.request import Request
-from spider.utils.log import log
+import spider
 
 
-class ${parser_name}(Spider):
-
+class ${parser_name}(spider.SingleSpider):
     def start_requests(self, *args, **kws):
-        pass
+        yield spider.Request("https://www.baidu.com")
 
     def parser(self, request, response):
-        pass
+        print(response.text)
+
+
+if __name__ == "__main__":
+    ${parser_name}().start()
