@@ -8,14 +8,16 @@ Created on 2020/4/22 10:45 PM
 @email: boris@bzkj.tech
 """
 
+from os.path import dirname, join
 from sys import version_info
 
 import setuptools
 
-
 if version_info < (3, 6, 0):
     raise SystemExit("Sorry! spider requires python 3.6.0 or later.")
 
+with open(join(dirname(__file__), "spider/VERSION"), "rb") as f:
+    version = f.read().decode("ascii").strip()
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
@@ -31,8 +33,8 @@ packages.extend(
 )
 
 setuptools.setup(
-    name="boris-spider",
-    version="0.0.3",
+    name="boris-pider",
+    version=version,
     author="Boris",
     license="MIT",
     author_email="boris@bzkj.tech",
@@ -49,9 +51,7 @@ setuptools.setup(
         "requests>=2.22.0",
         "bs4==0.0.1",
     ],
-    entry_points={
-        "console_scripts": ["spider-create = spider.base.create_builder:main"]
-    },
+    entry_points={"console_scripts": ["spider = spider.commands.cmdline:execute"]},
     url="https://github.com/Boris-code/spider.git",
     packages=packages,
     include_package_data=True,

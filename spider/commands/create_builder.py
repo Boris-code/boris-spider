@@ -502,6 +502,8 @@ def main():
 
     args = parser.parse_args()
 
+    print(args)
+
     if args.item:
         item_name, *support_dict = args.item
         support_dict = bool(support_dict)

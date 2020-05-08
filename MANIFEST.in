@@ -1,7 +1,8 @@
 include README.md
 include LICENSE
 
-include requirements.txt
+include spider/requirements.txt
+include spider/VERSION
 
 recursive-include spider/templates *
 
