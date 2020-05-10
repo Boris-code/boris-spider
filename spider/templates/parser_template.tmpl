@@ -15,7 +15,8 @@ class ${parser_name}(spider.SingleSpider):
         yield spider.Request("https://www.baidu.com")
 
     def parser(self, request, response):
-        print(response.text)
+        # print(response.text)
+        print(response.xpath('//input[@type="submit"]/@value').extract_first())
 
 
 if __name__ == "__main__":

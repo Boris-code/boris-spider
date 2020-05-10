@@ -488,21 +488,19 @@ def main():
         metavar="",
     )
     parser.add_argument(
-        "-p", "--parser", help="创建parser 如 create -p TestParser", metavar=""
+        "-p", "--parser", help="创建parser 如 spider create -p TestParser", metavar=""
     )
     parser.add_argument(
-        "-s", "--spider", help="创建爬虫项目 如 create -s test-spider", metavar=""
+        "-s", "--spider", help="创建爬虫项目 如 spider create -s test-spider", metavar=""
     )
-    parser.add_argument("-t", "--table", help="创建表 如 create -t table_name", metavar="")
+    parser.add_argument("-t", "--table", help="创建表 如 spider create -t table_name", metavar="")
     parser.add_argument(
-        "-init", help="创建__init__.py 如 create -init", action="store_true"
+        "-init", help="创建__init__.py 如 spider create -init", action="store_true"
     )
     parser.add_argument("-j", "--json", help="创建json", action="store_true")
     parser.add_argument("-sj", "--sort_json", help="创建有序json", action="store_true")
 
     args = parser.parse_args()
-
-    print(args)
 
     if args.item:
         item_name, *support_dict = args.item

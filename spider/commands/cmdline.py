@@ -12,6 +12,7 @@ import sys
 from os.path import dirname, join
 
 from spider.commands import create_builder
+from spider.commands import shell
 
 
 def _print_commands():
@@ -22,7 +23,7 @@ def _print_commands():
     print("\nUsage:")
     print("  spider <command> [options] [args]\n")
     print("Available commands:")
-    cmds = {"create": "create spider、parser、item and so on", "shell": "not support now"}
+    cmds = {"create": "create spider、parser、item and so on", "shell": "debug response"}
     for cmdname, cmdclass in sorted(cmds.items()):
         print("  %-13s %s" % (cmdname, cmdclass))
 
@@ -38,3 +39,7 @@ def execute():
     command = args.pop(1)
     if command == "create":
         create_builder.main()
+    elif command == "shell":
+        shell.main()
+    else:
+        _print_commands()

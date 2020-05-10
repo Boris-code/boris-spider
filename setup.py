@@ -33,7 +33,7 @@ packages.extend(
 )
 
 setuptools.setup(
-    name="boris-pider",
+    name="boris-spider",
     version=version,
     author="Boris",
     license="MIT",
@@ -50,9 +50,10 @@ setuptools.setup(
         "redis==2.10.6",
         "requests>=2.22.0",
         "bs4==0.0.1",
+        "ipython==7.14.0"
     ],
     entry_points={"console_scripts": ["spider = spider.commands.cmdline:execute"]},
-    url="https://github.com/Boris-code/spider.git",
+    url="https://github.com/Boris-code/boris-spider.git",
     packages=packages,
     include_package_data=True,
     classifiers=["Programming Language :: Python :: 3"],
