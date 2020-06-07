@@ -11,3 +11,4 @@ build/
 dist/
 *.egg-info/
 .vscode/
+media/

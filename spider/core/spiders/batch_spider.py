@@ -1038,8 +1038,8 @@ class BatchSpider(BatchParser, Scheduler):
 
 class DebugBatchSpider(BatchSpider):
     """
-        基于缓存重抽爬虫
-        """
+    Debug批次爬虫
+    """
 
     __debug_custom_setting__ = dict(
         COLLECTOR_SLEEP_TIME=1,

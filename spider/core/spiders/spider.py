@@ -231,8 +231,8 @@ class Spider(
 
 class DebugSpider(Spider):
     """
-        基于缓存重抽爬虫
-        """
+    Debug爬虫
+    """
 
     __debug_custom_setting__ = dict(
         COLLECTOR_SLEEP_TIME=1,
