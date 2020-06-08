@@ -12,3 +12,4 @@ dist/
 *.egg-info/
 .vscode/
 media/
+.MWebMetaData/

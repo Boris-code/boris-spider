@@ -18,7 +18,7 @@
 
 ## 框架流程图
 
-![boris-spider -1-](media/boris-spider%20-1-.png)
+![boris-spider -1-](http://markdown-media.oss-cn-beijing.aliyuncs.com/2020/06/08/borisspider-1.png?x-oss-process=style/markdown-media)
 
 ### 模块说明：
 
