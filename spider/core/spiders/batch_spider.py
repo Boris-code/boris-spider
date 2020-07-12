@@ -93,7 +93,7 @@ class BatchSpider(BatchParser, Scheduler):
         @param min_task_count: redis 中最少任务数, 少于这个数量会从mysql的任务表取任务
         @param check_task_interval: 检查是否还有任务的时间间隔；
         @param task_limit: 数据库中取任务的数量
-        @param table_folder: 爬虫request及item存放reis中的文件夹
+        @param table_folder: 爬虫request及item存放redis中的文件夹
         @param parser_count: 线程数，默认为配置文件中的线程数
         @param begin_callback: 爬虫开始回调函数
         @param end_callback: 爬虫结束回调函数
