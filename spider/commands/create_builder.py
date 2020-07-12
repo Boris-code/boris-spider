@@ -177,7 +177,7 @@ class CreateItem:
 
         return item_template
 
-    def save_template_to_file(self, item_template, table_name, table_name_hump_format):
+    def save_template_to_file(self, item_template, table_name):
         item_file = table_name + "_item.py"
         if os.path.exists(item_file):
             confirm = input("%s 文件已存在 是否覆盖 (y/n).  " % item_file)
@@ -187,7 +187,7 @@ class CreateItem:
 
         with open(item_file, "w", encoding="utf-8") as file:
             file.write(item_template)
-            print("\n%s 生成成功" % table_name_hump_format)
+            print("\n%s 生成成功" % item_file)
 
         self._create_init.create()
 
@@ -210,7 +210,7 @@ class CreateItem:
                 item_template, columns, table_name_hump_format, support_dict
             )
             self.save_template_to_file(
-                item_template, table_name, table_name_hump_format
+                item_template, table_name
             )
 
 
