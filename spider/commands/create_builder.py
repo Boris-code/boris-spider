@@ -15,17 +15,10 @@ import shutil
 import sys
 import time
 
-# 添加项目搜索路径 便于加载自定义的setting
-current_path = os.getcwd()
-sys.path.insert(0, os.getcwd().replace("/items", ""))
-sys.path.insert(0, os.getcwd().replace("/parsers", ""))
-
 import spider.utils.tools as tools
 from spider.db.mysqldb import MysqlDB
 import spider.setting as setting
 from spider.utils.tools import key2underline, dumps_json
-
-os.chdir(current_path)
 
 
 def deal_file_info(file):
@@ -209,9 +202,7 @@ class CreateItem:
             item_template = self.create_item(
                 item_template, columns, table_name_hump_format, support_dict
             )
-            self.save_template_to_file(
-                item_template, table_name
-            )
+            self.save_template_to_file(item_template, table_name)
 
 
 class CreateParser:
@@ -493,7 +484,9 @@ def main():
     parser.add_argument(
         "-s", "--spider", help="创建爬虫项目 如 spider create -s test-spider", metavar=""
     )
-    parser.add_argument("-t", "--table", help="创建表 如 spider create -t table_name", metavar="")
+    parser.add_argument(
+        "-t", "--table", help="创建表 如 spider create -t table_name", metavar=""
+    )
     parser.add_argument(
         "-init", help="创建__init__.py 如 spider create -init", action="store_true"
     )

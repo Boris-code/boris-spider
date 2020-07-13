@@ -7,6 +7,11 @@ Created on 2020/4/21 10:41 PM
 @author: Boris
 @email: boris@bzkj.tech
 """
+import os, sys
+
+current_path = os.getcwd()
+sys.path.insert(0, os.getcwd().replace("/items", ""))
+sys.path.insert(0, os.getcwd().replace("/parsers", ""))
 
 __all__ = [
     "SingleSpider",
@@ -16,7 +21,7 @@ __all__ = [
     "Response",
     "Item",
     "UpdateItem",
-    "ArgumentParser"
+    "ArgumentParser",
 ]
 
 from spider.core.spiders import Spider, BatchSpider, SingleSpider
