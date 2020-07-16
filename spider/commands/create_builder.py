@@ -23,7 +23,7 @@ from spider.utils.tools import key2underline, dumps_json
 
 def deal_file_info(file):
     file = file.replace("{DATE}", tools.get_current_date())
-    file = file.replace("{USER}", os.getenv("USER"))
+    file = file.replace("{USER}", os.getenv("USER", ""))
 
     return file
 
@@ -78,7 +78,7 @@ class CreateItem:
         templete_path = os.path.abspath(
             os.path.join(__file__, "../../templates/item_template.tmpl")
         )
-        with open(templete_path, "r") as file:
+        with open(templete_path, "r", encoding="utf-8") as file:
             item_template = file.read()
 
         return item_template
@@ -234,7 +234,7 @@ class CreateParser:
         templete_path = os.path.abspath(
             os.path.join(__file__, "../../templates/parser_template.tmpl")
         )
-        with open(templete_path, "r") as file:
+        with open(templete_path, "r", encoding="utf-8") as file:
             parser_template = file.read()
 
         return parser_template
@@ -271,7 +271,9 @@ class CreateParser:
 class CreateProject:
     def copy_callback(self, src, dst, *, follow_symlinks=True):
         if src.endswith(".py"):
-            with open(src, "r") as src_file, open(dst, "w") as dst_file:
+            with open(src, "r", encoding="utf-8") as src_file, open(
+                dst, "w", encoding="utf8"
+            ) as dst_file:
                 content = src_file.read()
                 content = deal_file_info(content)
                 dst_file.write(content)
@@ -425,7 +427,7 @@ class CreateInit:
 
         del os
 
-        with open("__init__.py", "w") as file:
+        with open("__init__.py", "w", encoding="utf-8") as file:
             text = "__all__ = %s" % dumps_json(__all__)
             file.write(text)
 
