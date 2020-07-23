@@ -8,10 +8,9 @@ Created on 2020/4/21 10:41 PM
 @email: boris@bzkj.tech
 """
 import os, sys
+import re
 
-current_path = os.getcwd()
-sys.path.insert(0, os.getcwd().replace("/items", ""))
-sys.path.insert(0, os.getcwd().replace("/parsers", ""))
+sys.path.insert(0, re.sub(r"([\\/]items)|([\\/]parsers)", "", os.getcwd()))
 
 __all__ = [
     "SingleSpider",
