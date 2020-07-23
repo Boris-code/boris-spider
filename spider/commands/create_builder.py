@@ -9,21 +9,22 @@ Created on 2018-08-28 17:38:43
 """
 
 import argparse
+import getpass
 import os
 import re
 import shutil
 import sys
 import time
 
+import spider.setting as setting
 import spider.utils.tools as tools
 from spider.db.mysqldb import MysqlDB
-import spider.setting as setting
 from spider.utils.tools import key2underline, dumps_json
 
 
 def deal_file_info(file):
     file = file.replace("{DATE}", tools.get_current_date())
-    file = file.replace("{USER}", os.getenv("USER", ""))
+    file = file.replace("{USER}", getpass.getuser())
 
     return file
 
