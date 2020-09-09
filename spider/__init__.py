@@ -16,6 +16,8 @@ __all__ = [
     "SingleSpider",
     "Spider",
     "BatchSpider",
+    "BaseParse",
+    "BatchParser",
     "Request",
     "Response",
     "Item",
@@ -24,6 +26,7 @@ __all__ = [
 ]
 
 from spider.core.spiders import Spider, BatchSpider, SingleSpider
+from spider.core.base_parser import BaseParse, BatchParser
 from spider.network.request import Request
 from spider.network.response import Response
 from spider.network.item import Item, UpdateItem
