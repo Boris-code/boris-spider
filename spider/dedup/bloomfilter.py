@@ -13,6 +13,7 @@ import math
 import time
 from struct import unpack, pack
 
+from spider import setting
 from spider.utils.redis_lock import RedisLock
 from . import bitarray
 
@@ -251,7 +252,12 @@ class ScalableBloomFilter(object):
         ):
             # with self._thread_lock:
             with RedisLock(
-                key="ScalableBloomFilter", timeout=300, wait_timeout=300
+                    key="ScalableBloomFilter", timeout=300, wait_timeout=300,
+                    redis_uri="redis://:{password}@{host_post}/{db}".format(
+                        password=setting.REDISDB_USER_PASS,
+                        host_post=setting.REDISDB_IP_PORTS,
+                        db=setting.REDISDB_DB,
+                    ),
             ) as lock:  # 全局锁 同一时间只有一个进程在真正的创建新的filter，等这个进程创建完，其他进程只是把刚创建的filter append进来
                 if lock.locked:
                     while True:

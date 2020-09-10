@@ -17,6 +17,7 @@ from spider.buffer.item_buffer import ItemBuffer
 from spider.buffer.request_buffer import RequestBuffer
 from spider.core.base_parser import BaseParse
 from spider.core.collector import Collector
+from spider.core.handle_failed_requests import HandleFailedRequests
 from spider.core.parser_control import PaserControl
 from spider.db.redisdb import RedisDB
 from spider.network.item import Item
@@ -44,6 +45,7 @@ class Scheduler(threading.Thread):
         auto_start_requests=None,
         send_run_time=True,
         batch_interval=0,
+        wait_lock=True,
         *parser_args,
         **parser_kwargs
     ):
@@ -60,6 +62,7 @@ class Scheduler(threading.Thread):
         @param auto_start_requests: 爬虫是否自动添加任务
         @param send_run_time: 发送运行时间
         @param batch_interval: 抓取时间间隔 默认为0 天为单位 多次启动时，只有当前时间与第一次抓取结束的时间间隔大于指定的时间间隔时，爬虫才启动
+        @param wait_lock: 下发任务时否等待锁，若不等待锁，可能会存在多进程同时在下发一样的任务，因此分布式环境下请将该值设置True
 
         @param *parser_args: 传给parser下start_requests的参数, tuple()
         @param **parser_kwargs: 传给parser下start_requests的参数, dict()
@@ -148,6 +151,7 @@ class Scheduler(threading.Thread):
             self.delete_tables(delete_tabs)
 
         self._last_check_task_status_time = 0
+        self.wait_lock = wait_lock
 
     def add_parser(self, parser):
         parser = parser()  # parser 实例化
@@ -186,76 +190,59 @@ class Scheduler(threading.Thread):
 
             tools.delay_time(1)  # 1秒钟检查一次爬虫状态
 
-    def _start(self):
-        if self._auto_start_requests:
-            # 将添加任务处加锁，防止多进程之间添加重复的任务
-            with RedisLock(
-                key=self._spider_name,
-                timeout=3600,
-                wait_timeout=60,
-                redis_uri="redis://:{password}@{host_post}/{db}".format(
-                    password=setting.REDISDB_USER_PASS,
-                    host_post=setting.REDISDB_IP_PORTS,
-                    db=setting.REDISDB_DB,
-                ),
-            ) as lock:
-                if lock.locked:
+    def __add_task(self):
+        # 启动parser 的 start_requests
+        self.spider_begin()  # 不自动结束的爬虫此处只能执行一遍
+        self.record_spider_state(
+            spider_type=1,
+            state=0,
+            batch_date=tools.get_current_date(),
+            spider_start_time=tools.get_current_date(),
+            batch_interval=self._batch_interval,
+        )
 
-                    # 启动parser 的 start_requests
-                    self.spider_begin()  # 不自动结束的爬虫此处只能执行一遍
-                    self.record_spider_state(
-                        spider_type=1,
-                        state=0,
-                        batch_date=tools.get_current_date(),
-                        spider_start_time=tools.get_current_date(),
-                        batch_interval=self._batch_interval,
-                    )
+        # 判断任务池中属否还有任务，若有接着抓取
+        todo_task_count = self._collector.get_requests_count()
+        if todo_task_count:
+            log.info("检查到有待做任务 %s 条，不重下发新任务。将接着上回异常终止处继续抓取" % todo_task_count)
+        else:
+            for parser in self._parsers:
+                results = parser.start_requests(*self._parser_args, **self._parser_kwargs)
+                # 添加request到请求队列，由请求队列统一入库
+                if results and not isinstance(results, Iterable):
+                    raise Exception("%s.%s返回值必须可迭代" % (parser.name, "start_requests"))
 
-                    # 判断任务池中属否还有任务，若有接着抓取
-                    todo_task_count = self._collector.get_requests_count()
-                    if todo_task_count:
-                        log.info(
-                            "检查到有待做任务 %s 条，不重下发新任务。将接着上回异常终止处继续抓取" % todo_task_count
-                        )
+                result_type = 1
+                for result in results or []:
+                    if isinstance(result, Request):
+                        result.parser_name = result.parser_name or parser.name
+                        self._request_buffer.put_request(result)
+                        result_type = 1
+
+                    elif isinstance(result, Item):
+                        self._item_buffer.put_item(result)
+                        result_type = 2
+
+                    elif callable(result):  # callbale的request可能是更新数据库操作的函数
+                        if result_type == 1:
+                            self._request_buffer.put_request(result)
+                        else:
+                            self._item_buffer.put_item(result)
                     else:
-                        for parser in self._parsers:
-                            results = parser.start_requests(
-                                *self._parser_args, **self._parser_kwargs
+                        raise TypeError(
+                            "start_requests yield result type error, expect Request、Item、callback func, bug get type: {}".format(
+                                type(result)
                             )
-                            # 添加request到请求队列，由请求队列统一入库
-                            if results and not isinstance(results, Iterable):
-                                raise Exception(
-                                    "%s.%s返回值必须可迭代" % (parser.name, "start_requests")
-                                )
+                        )
 
-                            result_type = 1
-                            for result in results or []:
-                                if isinstance(result, Request):
-                                    result.parser_name = (
-                                        result.parser_name or parser.name
-                                    )
-                                    self._request_buffer.put_request(result)
-                                    result_type = 1
+                self._request_buffer.flush()
+                self._item_buffer.flush()
 
-                                elif isinstance(result, Item):
-                                    self._item_buffer.put_item(result)
-                                    result_type = 2
-
-                                elif callable(result):  # callbale的request可能是更新数据库操作的函数
-                                    if result_type == 1:
-                                        self._request_buffer.put_request(result)
-                                    else:
-                                        self._item_buffer.put_item(result)
-                                else:
-                                    raise TypeError(
-                                        "start_requests yield result type error, expect Request、Item、callback func, bug get type: {}".format(
-                                            type(result)
-                                        )
-                                    )
-
-                            self._request_buffer.flush()
-                            self._item_buffer.flush()
-
+    def _start(self):
+        # 启动request_buffer
+        self._request_buffer.start()
+        # 启动item_buffer
+        self._item_buffer.start()
         # 启动collector
         self._collector.start()
 
@@ -274,11 +261,31 @@ class Scheduler(threading.Thread):
             parser_control.start()
             self._parser_controls.append(parser_control)
 
-        # 启动request_buffer
-        self._request_buffer.start()
+        # 下发任务 因为时间可能比较长，放到最后面
+        if setting.RETRY_FAILED_REQUESTS:
+            # 重设失败的任务, 不用加锁，原子性操作
+            handle_failed_requests = HandleFailedRequests(self._table_folder)
+            handle_failed_requests.reput_failed_requests_to_requests()
 
-        # 启动item_buffer
-        self._item_buffer.start()
+        # 下发新任务
+        if self._auto_start_requests:  # 自动下发
+            if self.wait_lock:
+                # 将添加任务处加锁，防止多进程之间添加重复的任务
+                with RedisLock(
+                        key=self._spider_name,
+                        timeout=3600,
+                        wait_timeout=60,
+                        redis_uri="redis://:{password}@{host_post}/{db}".format(
+                            password=setting.REDISDB_USER_PASS,
+                            host_post=setting.REDISDB_IP_PORTS,
+                            db=setting.REDISDB_DB,
+                        ),
+                ) as lock:
+                    if lock.locked:
+                        self.__add_task()
+            else:
+                self.__add_task()
+
 
     def all_thread_is_done(self):
         for i in range(3):  # 降低偶然性, 因为各个环节不是并发的，很有可能当时状态为假，但检测下一条时该状态为真。一次检测很有可能遇到这种偶然性

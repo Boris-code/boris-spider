@@ -16,12 +16,12 @@ from spider.utils.log import log
 
 
 class BaseParse(object):
-    def start_requests(self, *args, **kws):
+    def start_requests(self, *args, **kwargs):
         """
         @summary: 添加初始url
         ---------
         @param *args:
-        @param **kws:
+        @param **kwargs:
         ---------
         @result: yield Request()
         """
