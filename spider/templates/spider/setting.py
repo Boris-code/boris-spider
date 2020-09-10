@@ -11,7 +11,7 @@ MYSQL_USER_NAME = ""
 MYSQL_USER_PASS = ""
 
 # REDIS
-# IP:PORT 多个逗号分隔
+# IP:PORT
 REDISDB_IP_PORTS = "xxx:6379"
 REDISDB_USER_PASS = ""
 # 默认 0 到 15 共16个数据库
@@ -59,6 +59,10 @@ PROXY_ENABLE = True
 RANDOM_HEADERS = True
 # requests 使用session
 USE_SESSION = False
+
+# 去重
+ITEM_FILTER_ENABLE = False # item 去重
+REQUEST_FILTER_ENABLE = False # request 去重
 
 # 报警
 DINGDING_WARNING_URL = ""

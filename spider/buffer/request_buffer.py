@@ -15,6 +15,7 @@ import spider.setting as setting
 import spider.utils.tools as tools
 from spider.db.redisdb import RedisDB
 from spider.utils.log import log
+from spider.dedup import Dedup
 
 MAX_URL_COUNT = 1000  # 缓存中最大request数
 
@@ -45,6 +46,14 @@ class RequestBuffer(threading.Thread, Singleton):
             self._table_failed_request = setting.TAB_FAILED_REQUSETS.format(
                 table_folder=table_folder
             )
+
+            if not self.__class__.dedup and setting.REQUEST_FILTER_ENABLE:
+                self.__class__.dedup = Dedup(
+                    filter_type=Dedup.ExpireFilter,
+                    name=table_folder,
+                    expire_time=2592000,
+                    to_md5=False,
+                )  # 过期时间为一个月
 
     def run(self):
         while not self._thread_stop:

@@ -13,16 +13,18 @@ import spider.utils.tools as tools
 
 class ItemMetaclass(type):
     def __new__(cls, name, bases, attrs):
-        attrs.update(
-            __name__=None,
-            __table_name__=None,
-            __name_underline__=None,
-            __update_key__=None,
-        )
+        attrs.setdefault("__name__", None)
+        attrs.setdefault("__table_name__", None)
+        attrs.setdefault("__name_underline__", None)
+        attrs.setdefault("__update_key__", None)
+        attrs.setdefault("__unique_key__", None)
+
         return type.__new__(cls, name, bases, attrs)
 
 
 class Item(metaclass=ItemMetaclass):
+    __unique_key__ = []
+
     def __init__(self, **kwargs):
         self.__dict__ = kwargs
 
@@ -106,11 +108,23 @@ class Item(metaclass=ItemMetaclass):
         self.__name_underline__ = name
 
     @property
+    def unique_key(self):
+        return self.__unique_key__ or self.__class__.__unique_key__
+
+    @unique_key.setter
+    def unique_key(self, keys):
+        if isinstance(keys, (tuple, list)):
+            self.__unique_key__ = keys
+        else:
+            self.__unique_key__ = (keys,)
+
+    @property
     def fingerprint(self):
         args = []
         for key, value in self.to_dict.items():
-            if value and key != "gtime":  # gtime 为爬取时间 后期优化 不写死
-                args.append(str(value))
+            if value:
+                if (self.unique_key and key in self.unique_key) or not self.unique_key:
+                    args.append(str(value))
 
         if args:
             args = sorted(args)
@@ -125,12 +139,14 @@ class Item(metaclass=ItemMetaclass):
 
 
 class UpdateItem(Item):
+    __update_key__ = []
+
     def __init__(self, **kwargs):
         super(UpdateItem, self).__init__(**kwargs)
 
     @property
     def update_key(self):
-        return self.__update_key__
+        return self.__update_key__ or self.__class__.__update_key__
 
     @update_key.setter
     def update_key(self, keys):

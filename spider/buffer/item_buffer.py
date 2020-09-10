@@ -14,11 +14,12 @@ from queue import Queue
 import spider.setting as setting
 import spider.utils.tools as tools
 from spider.db.redisdb import RedisDB
+from spider.dedup import Dedup
 from spider.network.item import Item, UpdateItem
 from spider.utils.export_data import ExportData
 from spider.utils.log import log
 
-MAX_ITEM_COUNT = 5000  # 缓存中最大文章数
+MAX_ITEM_COUNT = 5000  # 缓存中最大item数
 UPLOAD_BATCH_MAX_SIZE = 1000
 
 
@@ -31,6 +32,8 @@ class Singleton(object):
 
 
 class ItemBuffer(threading.Thread, Singleton):
+    dedup = Dedup(to_md5=False) if setting.ITEM_FILTER_ENABLE else None
+
     def __init__(self, table_folder):
         if not hasattr(self, "_table_item"):
             super(ItemBuffer, self).__init__()
@@ -222,12 +225,13 @@ class ItemBuffer(threading.Thread, Singleton):
         export_success = False
         # 打点 校验
         to_table = tools.get_info(tab_item, ":s_(.*?)_item", fetch_one=True)
+        item_name = to_table + "_item"
         self.check_datas(table=to_table, datas=datas)
 
         if setting.ADD_ITEM_TO_MYSQL:  # 任务表需要入mysql
             if isinstance(setting.ADD_ITEM_TO_MYSQL, (list, tuple)):
                 for item in setting.ADD_ITEM_TO_MYSQL:
-                    if item in to_table:
+                    if item in item_name:
                         export_success = (
                             self._export_data.export_items(tab_item, datas)
                             if not is_update
@@ -248,7 +252,7 @@ class ItemBuffer(threading.Thread, Singleton):
         if setting.ADD_ITEM_TO_REDIS:
             if isinstance(setting.ADD_ITEM_TO_REDIS, (list, tuple)):
                 for item in setting.ADD_ITEM_TO_REDIS:
-                    if item in to_table:
+                    if item in item_name:
                         self._db.sadd(tab_item, datas)
                         export_success = True
                         log.info("共导出 %s 条数据 到redis %s" % (len(datas), tab_item))
