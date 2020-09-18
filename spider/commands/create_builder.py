@@ -496,7 +496,25 @@ def main():
     parser.add_argument("-j", "--json", help="创建json", action="store_true")
     parser.add_argument("-sj", "--sort_json", help="创建有序json", action="store_true")
 
+    # 指定数据库
+    parser.add_argument("--host", type=str, help="mysql 连接地址", metavar="")
+    parser.add_argument("--port", type=str, help="mysql 端口", metavar="")
+    parser.add_argument("--username", type=str, help="mysql 用户名", metavar="")
+    parser.add_argument("--password", type=str, help="mysql 密码", metavar="")
+    parser.add_argument("--db", type=str, help="mysql 数据库名", metavar="")
+
     args = parser.parse_args()
+
+    if args.host:
+        setting.MYSQL_IP = args.host
+    if args.port:
+        setting.MYSQL_PORT = int(args.port)
+    if args.username:
+        setting.MYSQL_USER_NAME = args.username
+    if args.password:
+        setting.MYSQL_USER_PASS = args.password
+    if args.db:
+        setting.MYSQL_DB = args.db
 
     if args.item:
         item_name, *support_dict = args.item
