@@ -35,7 +35,6 @@ from urllib import request
 from urllib.parse import urljoin
 
 import execjs  # pip install PyExecJS
-import pymysql
 import redis
 import requests
 import six
@@ -1804,10 +1803,13 @@ def witch_workspace(project_path):
 ############### 数据库相关 #######################
 def format_sql_value(value):
     if isinstance(value, str):
-        value = pymysql.escape_string(value)
+        value = value.strip()
 
-    elif isinstance(value, list) or isinstance(value, dict):
+    elif isinstance(value, (list, dict)):
         value = dumps_json(value, indent=None)
+
+    elif isinstance(value, (datetime.date, datetime.time)):
+        value = str(value)
 
     elif isinstance(value, bool):
         value = int(value)
@@ -1929,10 +1931,9 @@ def make_batch_sql(
         values.append(value)
 
     keys = ["`{}`".format(key) for key in keys]
-    keys = str(keys).replace("[", "(").replace("]", ")").replace("'", "")
-    values_placeholder = (
-        str(values_placeholder).replace("[", "(").replace("]", ")").replace("'", "")
-    )
+    keys = list2str(keys).replace("'", "")
+
+    values_placeholder = list2str(values_placeholder).replace("'", "")
 
     if update_columns:
         if not isinstance(update_columns, (tuple, list)):
