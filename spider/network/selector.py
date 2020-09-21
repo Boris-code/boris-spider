@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
-'''
+"""
 Created on 2018-10-08 15:33:37
 ---------
 @summary: 重新定义 selector
 ---------
 @author: Boris
 @email:  boris_liu@foxmail.com
-'''
+"""
 import re
 
 import six
+from lxml import etree
 from parsel import Selector as ParselSelector
 from parsel import SelectorList as ParselSelectorList
 from w3lib.html import replace_entities as w3lib_replace_entities
@@ -24,10 +25,10 @@ def extract_regex(regex, text, replace_entities=True, flags=0):
     if isinstance(regex, six.string_types):
         regex = re.compile(regex, flags=flags)
 
-    if 'extract' in regex.groupindex:
+    if "extract" in regex.groupindex:
         # named group
         try:
-            extracted = regex.search(text).group('extract')
+            extracted = regex.search(text).group("extract")
         except AttributeError:
             strings = []
         else:
@@ -43,11 +44,24 @@ def extract_regex(regex, text, replace_entities=True, flags=0):
     values = []
     for value in strings:
         if isinstance(value, (list, tuple)):  # w3lib_replace_entities 不能接收list tuple
-            values.append([w3lib_replace_entities(v, keep=['lt', 'amp']) for v in value])
+            values.append(
+                [w3lib_replace_entities(v, keep=["lt", "amp"]) for v in value]
+            )
         else:
-            values.append(w3lib_replace_entities(value, keep=['lt', 'amp']))
+            values.append(w3lib_replace_entities(value, keep=["lt", "amp"]))
 
     return values
+
+
+def create_root_node(text, parser_cls, base_url=None):
+    """Create root node for text using given parser class.
+    """
+    body = text.strip().replace("\x00", "").encode("utf8") or b"<html/>"
+    parser = parser_cls(recover=True, encoding="utf8", huge_tree=True)
+    root = etree.fromstring(body, parser=parser, base_url=base_url)
+    if root is None:
+        root = etree.fromstring(b"<html/>", parser=parser, base_url=base_url)
+    return root
 
 
 class SelectorList(ParselSelectorList):
@@ -82,7 +96,9 @@ class SelectorList(ParselSelectorList):
         Passing ``replace_entities`` as ``False`` switches off these
         replacements.
         """
-        datas = [x.re(regex, replace_entities=replace_entities, flags=flags) for x in self]
+        datas = [
+            x.re(regex, replace_entities=replace_entities, flags=flags) for x in self
+        ]
         return datas[0] if len(datas) == 1 else datas
 
 
@@ -98,7 +114,7 @@ class Selector(ParselSelector):
     def __init__(self, text=None, *args, **kwargs):
         # 先将&nbsp; 转为空格，否则selector 会转为 \xa0
         if text:
-            text = re.sub('&nbsp;', '\x20', text)
+            text = re.sub("&nbsp;", "\x20", text)
         super(Selector, self).__init__(text, *args, **kwargs)
 
     def re_first(self, regex, default=None, replace_entities=True, flags=re.S):
@@ -131,4 +147,9 @@ class Selector(ParselSelector):
         replacements.
         """
 
-        return extract_regex(regex, self.get(), replace_entities=replace_entities, flags=flags)
+        return extract_regex(
+            regex, self.get(), replace_entities=replace_entities, flags=flags
+        )
+
+    def _get_root(self, text, base_url=None):
+        return create_root_node(text, self._parser, base_url=base_url)

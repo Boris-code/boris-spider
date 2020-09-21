@@ -25,7 +25,9 @@ from spider.utils.tools import is_have_chinese
 FAIL_ENCODING = "ISO-8859-1"
 
 # html 源码中的特殊字符，需要删掉，否则会影响etree的构建
-SPECIAL_CHARACTERS = b"\x00".decode("utf8")
+SPECIAL_CHARACTERS = [
+    "[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]"  # 移除控制字符 全部字符列表 https://zh.wikipedia.org/wiki/%E6%8E%A7%E5%88%B6%E5%AD%97%E7%AC%A6
+]
 
 SPECIAL_CHARACTER_PATTERNS = [
     re.compile(special_character) for special_character in SPECIAL_CHARACTERS
