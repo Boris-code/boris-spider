@@ -32,7 +32,7 @@ class Singleton(object):
 
 
 class ItemBuffer(threading.Thread, Singleton):
-    dedup = Dedup(to_md5=False) if setting.ITEM_FILTER_ENABLE else None
+    dedup = None
 
     def __init__(self, table_folder):
         if not hasattr(self, "_table_item"):
@@ -59,6 +59,9 @@ class ItemBuffer(threading.Thread, Singleton):
             self._export_data = ExportData() if setting.ADD_ITEM_TO_MYSQL else None
 
             self.db_tip()
+
+            if setting.ITEM_FILTER_ENABLE and not self.__class__.dedup:
+                self.__class__.dedup = Dedup(to_md5=False)
 
     def db_tip(self):
         msg = "\n"
