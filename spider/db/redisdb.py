@@ -68,7 +68,7 @@ class RedisDB:
                             service_name,
                             password=user_pass,
                             db=db,
-                            redis_class=redis.Redis,
+                            redis_class=redis.StrictRedis,
                             **kwargs
                         )
 
@@ -84,7 +84,7 @@ class RedisDB:
                     self._is_redis_cluster = True
                 else:
                     ip, port = ip_ports[0].split(":")
-                    self._redis = redis.Redis(
+                    self._redis = redis.StrictRedis(
                         host=ip,
                         port=port,
                         db=db,
@@ -93,7 +93,9 @@ class RedisDB:
                         **kwargs
                     )
             else:
-                self._redis = redis.from_url(url, decode_responses=decode_responses)
+                self._redis = redis.StrictRedis.from_url(
+                    url, decode_responses=decode_responses
+                )
 
         except Exception as e:
             raise
@@ -246,17 +248,11 @@ class RedisDB:
             if not self._is_redis_cluster:
                 pipe.multi()
             for value, priority in zip(values, prioritys):
-                if self._is_redis_cluster:
-                    pipe.zadd(table, priority, value)
-                else:
-                    pipe.zadd(table, value, priority)
+                pipe.zadd(table, priority, value)
             return pipe.execute()
 
         else:
-            if self._is_redis_cluster:
-                return self._redis.zadd(table, prioritys, values)
-            else:
-                return self._redis.zadd(table, values, prioritys)
+            return self._redis.zadd(table, prioritys, values)
 
     def zget(self, table, count=1, is_pop=True):
         """
