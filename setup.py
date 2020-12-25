@@ -51,7 +51,8 @@ setuptools.setup(
         "requests>=2.22.0",
         "bs4==0.0.1",
         "ipython==7.14.0",
-        "bitarray==1.5.3"
+        "bitarray==1.5.3",
+        "redis-py-cluster==1.3.4"
     ],
     entry_points={"console_scripts": ["spider = spider.commands.cmdline:execute"]},
     url="https://github.com/Boris-code/boris-spider.git",

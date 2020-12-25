@@ -11,12 +11,32 @@ import redis
 
 import spider.setting as setting
 from spider.utils.log import log
+from redis.sentinel import Sentinel
+from rediscluster import StrictRedisCluster
 
 
 class RedisDB:
     def __init__(
-        self, ip_ports=None, db=None, user_pass=None, url=None, decode_responses=True
+        self,
+        ip_ports=None,
+        db=None,
+        user_pass=None,
+        url=None,
+        decode_responses=True,
+        service_name=None,
+        **kwargs
     ):
+        """
+        redis的封装
+        Args:
+            ip_ports: ip:port 多个可写为列表或者逗号隔开 如 ip1:port1,ip2:port2 或 ["ip1:port1", "ip2:port2"]
+            db:
+            user_pass:
+            url:
+            decode_responses:
+            service_name: 适用于redis哨兵模式
+        """
+
         # 可能会改setting中的值，所以此处不能直接赋值为默认值，需要后加载赋值
         if ip_ports is None:
             ip_ports = setting.REDISDB_IP_PORTS
@@ -24,6 +44,8 @@ class RedisDB:
             db = setting.REDISDB_DB
         if user_pass is None:
             user_pass = setting.REDISDB_USER_PASS
+        if service_name is None:
+            service_name = setting.REDISDB_SERVICE_NAME
 
         self._is_redis_cluster = False
 
@@ -33,7 +55,33 @@ class RedisDB:
                     ip_ports if isinstance(ip_ports, list) else ip_ports.split(",")
                 )
                 if len(ip_ports) > 1:
-                    pass
+                    startup_nodes = []
+                    for ip_port in ip_ports:
+                        ip, port = ip_port.split(":")
+                        startup_nodes.append({"host": ip, "port": port})
+
+                    if service_name:
+                        log.info("使用redis哨兵模式")
+                        hosts = [(node["host"], node["port"]) for node in startup_nodes]
+                        sentinel = Sentinel(hosts, socket_timeout=0.5, **kwargs)
+                        self._redis = sentinel.master_for(
+                            service_name,
+                            password=user_pass,
+                            db=db,
+                            redis_class=redis.Redis,
+                            **kwargs
+                        )
+
+                    else:
+                        log.info("使用redis集群模式")
+                        self._redis = StrictRedisCluster(
+                            startup_nodes=startup_nodes,
+                            decode_responses=decode_responses,
+                            password=user_pass,
+                            **kwargs
+                        )
+
+                    self._is_redis_cluster = True
                 else:
                     ip, port = ip_ports[0].split(":")
                     self._redis = redis.Redis(
@@ -42,7 +90,8 @@ class RedisDB:
                         db=db,
                         password=user_pass,
                         decode_responses=decode_responses,
-                    )  # redis默认端口是6379
+                        **kwargs
+                    )
             else:
                 self._redis = redis.from_url(url, decode_responses=decode_responses)
 

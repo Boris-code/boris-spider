@@ -22,11 +22,13 @@ MYSQL_USER_NAME = os.getenv("MYSQL_USER_NAME")
 MYSQL_USER_PASS = os.getenv("MYSQL_USER_PASS")
 
 # REDIS
-# IP:PORT
+# ip:port 多个可写为列表或者逗号隔开 如 ip1:port1,ip2:port2 或 ["ip1:port1", "ip2:port2"]
 REDISDB_IP_PORTS = os.getenv("REDISDB_IP_PORTS")
 REDISDB_USER_PASS = os.getenv("REDISDB_USER_PASS")
 # 默认 0 到 15 共16个数据库
 REDISDB_DB = int(os.getenv("REDISDB_DB", 0))
+# 适用于redis哨兵模式
+REDISDB_SERVICE_NAME =  os.getenv("REDISDB_SERVICE_NAME")
 
 # 爬虫相关
 # COLLECTOR
