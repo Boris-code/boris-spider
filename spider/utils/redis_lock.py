@@ -9,12 +9,7 @@ Created on 2019/11/5 5:25 PM
 """
 import time
 
-import redis
-
 import spider.utils.log as log
-
-# redis锁使用的redis连接池
-global_redis_lock_connection_pool_cache = {}
 
 
 class RedisLock(object):
@@ -24,8 +19,7 @@ class RedisLock(object):
         timeout=300,
         wait_timeout=8 * 3600,
         break_wait=None,
-        redis_uri=None,
-        connection_pool=None,
+        redis_cli=None,
         logger=None,
     ):
         """
@@ -35,6 +29,7 @@ class RedisLock(object):
         :param wait_timeout:  等待加锁超时时间 默认8小时  防止多线程竞争时可能出现的 某个线程无限等待
                             <=0 则不等待 直接加锁失败
         :param break_wait: 可自定义函数 灵活控制 wait_timeout 时间 当此函数返回True时 不再wait
+        :param redis_cli: redis客户端
 
         用法示例:
         with RedisLock(key="test", timeout=10, wait_timeout=100, redis_uri="") as _lock:
@@ -45,10 +40,10 @@ class RedisLock(object):
         self.redis_index = -1
         if not key:
             raise Exception("lock key is empty")
-        if connection_pool:
-            self.redis_conn = redis.StrictRedis(connection_pool=connection_pool)
-        else:
-            self.redis_conn = self.get_redis_conn(redis_uri)
+        if not redis_cli:
+            raise Exception("redis_cli is empty")
+
+        self.redis_conn = redis_cli
 
         self.logger = logger or log.get_logger(__file__)
 
@@ -80,16 +75,6 @@ class RedisLock(object):
 
     def __repr__(self):
         return "<RedisLock: {} index: {}>".format(self.lock_key, self.redis_index)
-
-    def get_redis_conn(self, redis_uri):
-        if redis_uri not in global_redis_lock_connection_pool_cache:
-            connection_pool = redis.BlockingConnectionPool.from_url(
-                redis_uri, max_connections=10, timeout=60
-            )
-            global_redis_lock_connection_pool_cache[redis_uri] = connection_pool
-        return redis.StrictRedis(
-            connection_pool=global_redis_lock_connection_pool_cache[redis_uri]
-        )
 
     def acquire(self):
         start = time.time()

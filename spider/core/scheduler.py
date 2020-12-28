@@ -275,11 +275,7 @@ class Scheduler(threading.Thread):
                         key=self._spider_name,
                         timeout=3600,
                         wait_timeout=60,
-                        redis_uri="redis://:{password}@{host_post}/{db}".format(
-                            password=setting.REDISDB_USER_PASS,
-                            host_post=setting.REDISDB_IP_PORTS,
-                            db=setting.REDISDB_DB,
-                        ),
+                        redis_cli=RedisDB(),
                 ) as lock:
                     if lock.locked:
                         self.__add_task()

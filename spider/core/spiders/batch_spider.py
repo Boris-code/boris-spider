@@ -945,11 +945,7 @@ class BatchSpider(BatchParser, Scheduler):
                 key=self._spider_name,
                 timeout=3600,
                 wait_timeout=0,
-                redis_uri="redis://:{password}@{host_post}/{db}".format(
-                    password=setting.REDISDB_USER_PASS,
-                    host_post=setting.REDISDB_IP_PORTS,
-                    db=setting.REDISDB_DB,
-                ),
+                redis_cli=RedisDB(),
             ) as lock:
                 if lock.locked:
                     log.info("批次表标记已完成，正在检查任务表是否有未完成的任务")

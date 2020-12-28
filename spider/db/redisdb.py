@@ -24,6 +24,7 @@ class RedisDB:
         url=None,
         decode_responses=True,
         service_name=None,
+        max_connections=32,
         **kwargs
     ):
         """
@@ -69,6 +70,8 @@ class RedisDB:
                             password=user_pass,
                             db=db,
                             redis_class=redis.StrictRedis,
+                            decode_responses=decode_responses,
+                            max_connections=max_connections,
                             **kwargs
                         )
 
@@ -78,6 +81,7 @@ class RedisDB:
                             startup_nodes=startup_nodes,
                             decode_responses=decode_responses,
                             password=user_pass,
+                            max_connections=max_connections,
                             **kwargs
                         )
 
@@ -90,6 +94,7 @@ class RedisDB:
                         db=db,
                         password=user_pass,
                         decode_responses=decode_responses,
+                        max_connections=max_connections,
                         **kwargs
                     )
             else:
