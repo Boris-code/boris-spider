@@ -207,7 +207,9 @@ class Scheduler(threading.Thread):
             log.info("检查到有待做任务 %s 条，不重下发新任务。将接着上回异常终止处继续抓取" % todo_task_count)
         else:
             for parser in self._parsers:
-                results = parser.start_requests(*self._parser_args, **self._parser_kwargs)
+                results = parser.start_requests(
+                    *self._parser_args, **self._parser_kwargs
+                )
                 # 添加request到请求队列，由请求队列统一入库
                 if results and not isinstance(results, Iterable):
                     raise Exception("%s.%s返回值必须可迭代" % (parser.name, "start_requests"))
@@ -272,16 +274,15 @@ class Scheduler(threading.Thread):
             if self.wait_lock:
                 # 将添加任务处加锁，防止多进程之间添加重复的任务
                 with RedisLock(
-                        key=self._spider_name,
-                        timeout=3600,
-                        wait_timeout=60,
-                        redis_cli=RedisDB(),
+                    key=self._spider_name,
+                    timeout=3600,
+                    wait_timeout=60,
+                    redis_cli=RedisDB().get_redis_obj(),
                 ) as lock:
                     if lock.locked:
                         self.__add_task()
             else:
                 self.__add_task()
-
 
     def all_thread_is_done(self):
         for i in range(3):  # 降低偶然性, 因为各个环节不是并发的，很有可能当时状态为假，但检测下一条时该状态为真。一次检测很有可能遇到这种偶然性

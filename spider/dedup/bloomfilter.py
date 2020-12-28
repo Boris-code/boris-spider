@@ -255,7 +255,7 @@ class ScalableBloomFilter(object):
                 key="ScalableBloomFilter",
                 timeout=300,
                 wait_timeout=300,
-                redis_cli=RedisDB(),
+                redis_cli=RedisDB().get_redis_obj(),
             ) as lock:  # 全局锁 同一时间只有一个进程在真正的创建新的filter，等这个进程创建完，其他进程只是把刚创建的filter append进来
                 if lock.locked:
                     while True:
