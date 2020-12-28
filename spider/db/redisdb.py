@@ -74,9 +74,9 @@ class RedisDB:
                         startup_nodes.append({"host": ip, "port": port})
 
                     if service_name:
-                        log.info("使用redis哨兵模式")
+                        log.debug("使用redis哨兵模式")
                         hosts = [(node["host"], node["port"]) for node in startup_nodes]
-                        sentinel = Sentinel(hosts, socket_timeout=0.5, **kwargs)
+                        sentinel = Sentinel(hosts, socket_timeout=3, **kwargs)
                         self._redis = sentinel.master_for(
                             service_name,
                             password=user_pass,
@@ -88,7 +88,7 @@ class RedisDB:
                         )
 
                     else:
-                        log.info("使用redis集群模式")
+                        log.debug("使用redis集群模式")
                         self._redis = StrictRedisCluster(
                             startup_nodes=startup_nodes,
                             decode_responses=decode_responses,
@@ -118,9 +118,9 @@ class RedisDB:
             raise
         else:
             if not url:
-                log.info("连接到redis数据库 %s db%s" % (ip_ports, db))
+                log.debug("连接到redis数据库 %s db%s" % (ip_ports, db))
             else:
-                log.info("连接到redis数据库 %s" % (url))
+                log.debug("连接到redis数据库 %s" % (url))
 
         self._ip_ports = ip_ports
         self._db = db
