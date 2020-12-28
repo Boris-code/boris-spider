@@ -756,6 +756,3 @@ class RedisDB:
 
     def get_redis_obj(self):
         return self._redis
-
-
-RedisDB(ip_ports='3213')
