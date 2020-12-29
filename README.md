@@ -30,8 +30,10 @@
 为了保证数据的全量性、准确性、时效性，本框架内置报警机制，有了这些报警，我们可以实时掌握爬虫状态
 
 ![-w657](http://markdown-media.oss-cn-beijing.aliyuncs.com/2020/12/20/16084718683378.jpg?x-oss-process=style/markdown-media)
+
 ![-w501](http://markdown-media.oss-cn-beijing.aliyuncs.com/2020/12/20/16084718974597.jpg?x-oss-process=style/markdown-media)
-![-w416](media/16092335882158.jpg)
+
+![-w416](http://markdown-media.oss-cn-beijing.aliyuncs.com/2020/12/29/16092335882158.jpg?x-oss-process=style/markdown-media)
 
 
 ## 框架流程图
