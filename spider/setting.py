@@ -32,14 +32,14 @@ REDISDB_SERVICE_NAME =  os.getenv("REDISDB_SERVICE_NAME")
 
 # 爬虫相关
 # COLLECTOR
-COLLECTOR_SLEEP_TIME = 1
-COLLECTOR_TASK_COUNT = 100
+COLLECTOR_SLEEP_TIME = 1 # 从任务队列中获取任务到内存队列的间隔
+COLLECTOR_TASK_COUNT = 10 # 每次获取任务数量
 
 # PARSER
-PARSER_COUNT = 100
-PARSER_SLEEP_TIME = 0
-PARSER_TASK_COUNT = 1
-PARSER_MAX_RETRY_TIMES = 100
+PARSER_COUNT = 1 # 爬虫并发数
+PARSER_SLEEP_TIME = 0 # 下载时间间隔（解析完一个response后休眠时间）
+PARSER_TASK_COUNT = 1 # 每个parser从内存队列中获取任务的数量
+PARSER_MAX_RETRY_TIMES = 100 # 每个请求最大重试次数
 # 是否主动执行添加 设置为False 需要手动调用start_monitor_task，适用于多进程情况下
 PARSER_AUTO_START_REQUESTS = True
 
@@ -86,9 +86,9 @@ ITEM_FILTER_ENABLE = False # item 去重
 REQUEST_FILTER_ENABLE = False # request 去重
 
 # 报警
-DINGDING_WARNING_URL = ""
-DINGDING_WARNING_PHONE = ""
-LINGXI_TOKEN = ""
+DINGDING_WARNING_URL = "" # 钉钉机器人api
+DINGDING_WARNING_PHONE = "" # 报警人
+LINGXI_TOKEN = "" # 灵犀报警token
 
 LOG_NAME = os.path.basename(os.getcwd())
 LOG_PATH = "log/%s.log" % LOG_NAME  # log存储路径
