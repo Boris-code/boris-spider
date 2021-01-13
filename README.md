@@ -84,6 +84,14 @@ From PyPi:
 From Git:
 
     pip3 install git+https://github.com/Boris-code/boris-spider.git
+    
+
+window下若报bitarray安装错误，可手动安装bitarray，然后再安装此框架。安装步骤：
+
+    下载解压：https://github.com/ilanschnell/bitarray/archive/1.5.3.zip
+    cd bitarray-1.5.3
+    python setup.py install
+
 
 ## 快速上手
 
