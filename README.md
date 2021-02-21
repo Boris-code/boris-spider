@@ -2,13 +2,15 @@
 
 ![](https://img.shields.io/badge/python-3.6-brightgreen)
 
-<font color="red">⚠️⚠️⚠️ 本框架已重命名为feapder，本项目已废弃，直接看新项目即可
+## 重要声明
+
+⚠️⚠️⚠️ 本框架已重命名为feapder，本项目已废弃，直接看新项目即可
 
 新项目地址：[https://github.com/Boris-code/feapder](https://github.com/Boris-code/feapder)
 
 文档地址：[https://boris.org.cn/feapder](https://boris.org.cn/feapder)
 
-</font>
+## 简介
 
 **boris-spide**r是一款使用Python语言编写的爬虫框架，于多年的爬虫业务中不断磨合而诞生，相比于scrapy，该框架更易上手，且又满足复杂的需求，支持分布式及批次采集。
 
