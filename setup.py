@@ -50,7 +50,7 @@ setuptools.setup(
         "redis==2.10.6",
         "requests>=2.22.0",
         "bs4==0.0.1",
-        "ipython==7.14.0",
+        "ipython==7.16.3",
         "bitarray==1.5.3",
         "redis-py-cluster==1.3.4"
     ],
